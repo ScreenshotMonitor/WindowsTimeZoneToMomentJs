@@ -4,18 +4,63 @@ using System.Linq;
 
 namespace Pranas.WindowsTimeZoneToMomentJs
 {
+    /// <summary>
+    /// Windows TimeZoneInfo to moment.js time zone converter
+    /// </summary>
     public static class TimeZoneToMoment
     {
         #region Interface
 
         private const int YearDelta = 10;
 
-        public static MomentTimeZone ToMoment(TimeZoneInfo timeZoneInfo)
+        /// <summary>
+        /// Converts <c>TimeZoneInfo</c> to the zone object for the default period in years (+/- 10 years to the current date).
+        /// </summary>
+        /// <param name="tz">Windows time zone</param>
+        /// <returns><c>MomentTimeZone</c> - the zone object in unpacked format</returns>
+        /// <example>  
+        /// This sample shows how to use the <see cref="ToMoment(TimeZoneInfo)"/> method.
+        /// <code> 
+        /// class TestClass  
+        /// { 
+        ///     static void Main()  
+        ///     { 
+        ///         var tz = TimeZoneToMoment.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"));
+        ///         var json = Newtonsoft.Json.JsonConvert.SerializeObject(tz);
+        ///         Console.WriteLine(json);
+        ///     } 
+        /// } 
+        /// </code> 
+        /// </example> 
+        /// <seealso cref="ToMoment(TimeZoneInfo, int, int)"/>
+        public static MomentTimeZone ToMoment(TimeZoneInfo tz)
         {
             var yearNow = DateTime.UtcNow.Year;
-            return ToMoment(timeZoneInfo, yearNow - YearDelta, yearNow + YearDelta);
+            return ToMoment(tz, yearNow - YearDelta, yearNow + YearDelta);
         }
 
+        /// <summary>
+        /// Converts <c>TimeZoneInfo</c> to the zone object for the given period in years.
+        /// </summary>
+        /// <param name="tz">Windows time zone</param>
+        /// <param name="from">Year from.</param>
+        /// <param name="to">Year to.</param>
+        /// <returns><c>MomentTimeZone</c> - the zone object in unpacked format</returns>
+        /// <example>  
+        /// This sample shows how to use the <see cref="ToMoment(TimeZoneInfo, int, int)"/> method.
+        /// <code> 
+        /// class TestClass  
+        /// { 
+        ///     static void Main()  
+        ///     { 
+        ///         var tz = TimeZoneToMoment.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"), 1990, 2030);
+        ///         var json = Newtonsoft.Json.JsonConvert.SerializeObject(tz);
+        ///         Console.WriteLine(json);
+        ///     } 
+        /// } 
+        /// </code> 
+        /// </example> 
+        /// <seealso cref="ToMoment(TimeZoneInfo)"/>
         public static MomentTimeZone ToMoment(TimeZoneInfo tz, int from, int to)
         {
             var result = new MomentTimeZone
@@ -50,27 +95,27 @@ namespace Pranas.WindowsTimeZoneToMomentJs
 
         #region Helpers
 
-        public static bool IsBefore(this DateTime dt, DateTime other)
+        private static bool IsBefore(this DateTime dt, DateTime other)
         {
             return dt.CompareTo(other) < 0;
         }
 
-        public static bool IsAfter(this DateTime dt, DateTime other)
+        private static bool IsAfter(this DateTime dt, DateTime other)
         {
             return dt.CompareTo(other) > 0;
         }
 
-        public static bool IsBeforeOrEq(this DateTime dt, DateTime other)
+        private static bool IsBeforeOrEq(this DateTime dt, DateTime other)
         {
             return dt.CompareTo(other) <= 0;
         }
 
-        public static bool IsAfterOrEq(this DateTime dt, DateTime other)
+        private static bool IsAfterOrEq(this DateTime dt, DateTime other)
         {
             return dt.CompareTo(other) >= 0;
         }
 
-        public static long ToUnix(this DateTime time)
+        private static long ToUnix(this DateTime time)
         {
             return (long) (time - UnixEpoch).TotalMilliseconds;
         }

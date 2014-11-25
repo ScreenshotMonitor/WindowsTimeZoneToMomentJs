@@ -1,2 +1,0 @@
-http://docs.nuget.org/docs/creating-packages/Using-a-GUI-to-build-packages
-http://docs.nuget.org/docs/creating-packages/creating-and-publishing-a-package

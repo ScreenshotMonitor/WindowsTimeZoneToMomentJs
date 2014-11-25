@@ -66,7 +66,7 @@ namespace WinTzToMomentJsTzTool
                         var mtz = TimeZoneToMoment.ToMoment(wtz, from, to);
                         return new MomentTimeZoneExt(ianaId, mtz);
                     }).ToList();
-                Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.Indented));
+                Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.None));
             }
         }
     }

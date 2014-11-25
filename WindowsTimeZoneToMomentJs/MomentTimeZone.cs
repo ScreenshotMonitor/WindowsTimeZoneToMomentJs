@@ -2,7 +2,10 @@
 
 namespace Pranas.WindowsTimeZoneToMomentJs
 {
-    // ReSharper disable InconsistentNaming
+    /// <summary>
+    /// The zone object in unpacked format 
+    /// <a href="http://momentjs.com/timezone/docs/#/data-formats/">http://momentjs.com/timezone/docs/#/data-formats/</a> 
+    /// </summary>
     public class MomentTimeZone
     {
         public string name { get; set; }
