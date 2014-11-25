@@ -147,7 +147,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
 
         private static readonly TimeSpan TsUtc = new TimeSpan(0, 0, 0);
 
-        public static TimeZoneInfo.AdjustmentRule FindRule(this TimeZoneInfo tz, DateTime dt)
+        private static TimeZoneInfo.AdjustmentRule FindRule(this TimeZoneInfo tz, DateTime dt)
         {
             return
                 tz.GetAdjustmentRules().SingleOrDefault(x => dt.IsAfterOrEq(x.DateStart) && dt.IsBeforeOrEq(x.DateEnd));
