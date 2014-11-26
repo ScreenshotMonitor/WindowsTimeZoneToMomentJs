@@ -1,4 +1,4 @@
-WindowsTimeZoneToMomentJs
+Windows To Moment.js Timezone Coverter
 =========================
 
-Windows To Moment.js Timezone Coverter
+
