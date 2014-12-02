@@ -1,2 +1,3 @@
 *.suo
-NuPkg
+NuGet
+ignore
