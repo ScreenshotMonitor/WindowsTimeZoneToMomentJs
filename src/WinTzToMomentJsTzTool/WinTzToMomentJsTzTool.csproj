@@ -57,7 +57,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Pranas.WindowsTimeZoneToMomentJs\Pranas.WindowsTimeZoneToMomentJs.csproj">
       <Project>{d40680a8-e75a-44dd-b3c1-e00899814acc}</Project>
-      <Name>WindowsTimeZoneToMomentJs</Name>
+      <Name>Pranas.WindowsTimeZoneToMomentJs</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

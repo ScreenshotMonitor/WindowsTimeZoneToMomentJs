@@ -51,9 +51,8 @@ namespace Pranas.WindowsTimeZoneToMomentJs
               .Append(ToJsonArray(zone.untils, x => x.ToString(CultureInfo.InvariantCulture)))
               .AppendLine(",");
             sb.Append("offsets : ")
-              .Append(ToJsonArray(zone.offsets, x => x.ToString(CultureInfo.InvariantCulture)))
-              .AppendLine("");
-            sb.AppendLine(" ");
+              .Append(ToJsonArray(zone.offsets, x => x.ToString(CultureInfo.InvariantCulture)));
+            sb.AppendLine(" } ");
             return sb.ToString();
         }
 
