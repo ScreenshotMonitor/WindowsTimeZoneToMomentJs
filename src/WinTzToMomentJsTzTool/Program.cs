@@ -14,11 +14,13 @@ namespace WinTzToMomentJsTzTool
         public MomentTimeZoneExt(string ianaId, MomentTimeZone tz)
         {
             name = tz.name;
+            descr = tz.descr;
             abbrs = tz.abbrs;
             untils = tz.untils;
             offsets = tz.offsets;
             IanaId = ianaId;
         }
+
         public string IanaId { get; private set; }
     }
 
@@ -48,25 +50,87 @@ namespace WinTzToMomentJsTzTool
             return tzdbSource.CanonicalIdMap[tzid];
         }
 
+        private static string FmtIso8601(DateTimeOffset dt)
+        {
+            return dt.ToString("yyyy-MM-ddTHH:mm:ssK");
+        }
+
+        private static List<object> GetDates(string tzId, int from, int to)
+        {
+            var utcOffset = new TimeSpan(0, 0, 0, 0, 0);
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
+            var list = new List<object>();
+            for (var y = from; y < to; y++)
+            {
+                for (var m = 1; m < 13; m++)
+                {
+                    var d = 15;
+                    for (var h = 1; h < 24; h = h + 6)
+                    {
+                        var utcTime = new DateTimeOffset(y, m, d, h, 30, 0, 0, utcOffset);
+                        var tzTime = TimeZoneInfo.ConvertTimeFromUtc(utcTime.UtcDateTime, tz);
+                        list.Add(new
+                            {
+                                u = FmtIso8601(utcTime),
+                                z = FmtIso8601(tzTime)
+                            });
+                    }
+                }
+            }
+            return list;
+        }
+
+        
+        private static void GenTest(int from, int to)
+        {
+            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
+            var list = zones.Select(wtz =>
+                {
+                    var ianaId = ConvertWindowsToIana(wtz.Id);
+                    var mtz = TimeZoneToMomentConverter.ToMoment(wtz, from, to);
+                    return new MomentTimeZoneExt(ianaId, mtz);
+                }).ToList();
+            var r = list.Select(x => new
+                {
+                    tz = x,
+                    dates = GetDates(x.name, from, to)
+                });
+            Console.WriteLine(JsonConvert.SerializeObject(r, Formatting.None));
+        }
+
+
+        private static void ExportZones(int from, int to)
+        {
+            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
+            var list = zones.Select(wtz =>
+                {
+                    var ianaId = ConvertWindowsToIana(wtz.Id);
+                    var mtz = TimeZoneToMomentConverter.ToMoment(wtz, from, to);
+                    return new MomentTimeZoneExt(ianaId, mtz);
+                }).ToList();
+
+            Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.None));
+        }
+
         public static void Main(string[] args)
         {
             if (args.Length < 2)
             {
-                Console.WriteLine("Usage : WinTzToMomentJsTzTool.exe [year_from] [year_to]");
+                Console.WriteLine("Usage : WinTzToMomentJsTzTool.exe [gentest|export] [year_from] [year_to]");
             }
             else
             {
-                var from = Convert.ToInt32(args[0]);
-                var to = Convert.ToInt32(args[1]);
-
-                var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
-                var list = zones.Select(wtz =>
-                    {
-                        var ianaId = ConvertWindowsToIana(wtz.Id);
-                        var mtz = TimeZoneToMoment.ToMoment(wtz, from, to);
-                        return new MomentTimeZoneExt(ianaId, mtz);
-                    }).ToList();
-                Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.None));
+                var from = Convert.ToInt32(args[1]);
+                var to = Convert.ToInt32(args[2]);
+                switch (args[0])
+                {
+                    case "gentest":
+                        GenTest(from, to);
+                        break;
+                    case "export":
+                        ExportZones(from, to);
+                        break;
+                }
             }
         }
     }

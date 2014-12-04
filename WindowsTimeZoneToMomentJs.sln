@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTimeZoneToMomentJs", "WindowsTimeZoneToMomentJs\WindowsTimeZoneToMomentJs.csproj", "{D40680A8-E75A-44DD-B3C1-E00899814ACC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsTimeZoneToMomentJs", "src\Pranas.WindowsTimeZoneToMomentJs\Pranas.WindowsTimeZoneToMomentJs.csproj", "{D40680A8-E75A-44DD-B3C1-E00899814ACC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinTzToMomentJsTzTool", "WinTzToMomentJsTzTool\WinTzToMomentJsTzTool.csproj", "{FF1F0492-07F0-4B99-B546-58A815E74EE0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WinTzToMomentJsTzTool", "src\WinTzToMomentJsTzTool\WinTzToMomentJsTzTool.csproj", "{FF1F0492-07F0-4B99-B546-58A815E74EE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

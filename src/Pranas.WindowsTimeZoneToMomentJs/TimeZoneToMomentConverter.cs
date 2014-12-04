@@ -7,9 +7,31 @@ namespace Pranas.WindowsTimeZoneToMomentJs
     /// <summary>
     /// Windows TimeZoneInfo to moment.js time zone converter
     /// </summary>
-    public static class TimeZoneToMoment
+    public static class TimeZoneToMomentConverter
     {
         #region Interface
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tz"></param>
+        /// <param name="fromYear"></param>
+        /// <param name="toYear"></param>
+        /// <returns></returns>
+        public static string ToMomentJson(TimeZoneInfo tz, int fromYear, int toYear)
+        {
+            return ToMoment(tz, fromYear, toYear).ToJson();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tz"></param>
+        /// <returns></returns>
+        public static string ToMomentJson(TimeZoneInfo tz)
+        {
+            return ToMoment(tz).ToJson();
+        }
 
         private const int YearDelta = 10;
 
@@ -25,7 +47,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
         /// { 
         ///     static void Main()  
         ///     { 
-        ///         var tz = TimeZoneToMoment.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"));
+        ///         var tz = TimeZoneToMomentConverter.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"));
         ///         var json = Newtonsoft.Json.JsonConvert.SerializeObject(tz);
         ///         Console.WriteLine(json);
         ///     } 
@@ -43,8 +65,8 @@ namespace Pranas.WindowsTimeZoneToMomentJs
         /// Converts <c>TimeZoneInfo</c> to the zone object for the given period in years.
         /// </summary>
         /// <param name="tz">Windows time zone</param>
-        /// <param name="from">Year from.</param>
-        /// <param name="to">Year to.</param>
+        /// <param name="fromYear">Generate rules starting from year <c>fromYear</c>.</param>
+        /// <param name="toYear">Generate rules starting till year <c>toYear</c>.</param>
         /// <returns><c>MomentTimeZone</c> - the zone object in unpacked format</returns>
         /// <example>  
         /// This sample shows how to use the <see cref="ToMoment(TimeZoneInfo, int, int)"/> method.
@@ -53,7 +75,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
         /// { 
         ///     static void Main()  
         ///     { 
-        ///         var tz = TimeZoneToMoment.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"), 1990, 2030);
+        ///         var tz = TimeZoneToMomentConverter.ToMoment(TimeZoneInfo.FindSystemTimeZoneById("Mountain Standard Time"), 1990, 2030);
         ///         var json = Newtonsoft.Json.JsonConvert.SerializeObject(tz);
         ///         Console.WriteLine(json);
         ///     } 
@@ -61,13 +83,14 @@ namespace Pranas.WindowsTimeZoneToMomentJs
         /// </code> 
         /// </example> 
         /// <seealso cref="ToMoment(TimeZoneInfo)"/>
-        public static MomentTimeZone ToMoment(TimeZoneInfo tz, int from, int to)
+        public static MomentTimeZone ToMoment(TimeZoneInfo tz, int fromYear, int toYear)
         {
             var result = new MomentTimeZone
                 {
-                    name = tz.Id
+                    name = tz.Id,
+                    descr = fromYear + "-" + toYear + " (Utc offset : " + tz.BaseUtcOffset+")"
                 };
-            var untils = GetUntils(tz, from, to);
+            var untils = GetUntils(tz, fromYear, toYear);
             if (!untils.Any())
             {
                 return result;
@@ -79,11 +102,9 @@ namespace Pranas.WindowsTimeZoneToMomentJs
             {
                 n++;
                 if (!dt.HasValue) dt = untils.Pop();
-                // ReSharper disable ConditionIsAlwaysTrueOrFalse
                 if (dt.HasValue)
-                    // ReSharper restore ConditionIsAlwaysTrueOrFalse
                 {
-                    if (dt.Value.Year > to) break;
+                    if (dt.Value.Year > toYear) break;
                     dt = HandleDate(result, tz, dt.Value, maxDate);
                 }
                 if (n > 1000) throw new OverflowException("Error to convert timezone " + tz.Id + " (too long cycle)");
