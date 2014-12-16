@@ -6,8 +6,8 @@ var _ = require('underscore');
 var log = console.log;
 
 function test_zone(item){
-  log("-----------------------------------");
-  var verbose = true;
+  var verbose = false;
+  if (verbose) log("-----------------------------------"); 
   var err = false;
   var lt = item.tz;
   if (verbose) log("Testing : "+lt.name + " ( "+lt.descr+" )");
@@ -27,12 +27,13 @@ function test_zone(item){
 	var ss2 = s2.substring(1, 19);	
 	if (ss1 !== ss2){
 		err = true;
-		log("Fail: Expected ["+s2 +"] but got ["+ s1 + "] for zone : "+lt.name+" ( utc : "+x.u+" )");		
+		log("Fail: Expected ["+s2 +"] but got ["+ s1 + "] for zone : "+lt.name+" ( utc : "+x.u+" )");	
+        log("");		
 	}
   }
     
   if (!err){  	
-  	log(lt.name + " - OK ("+lt.untils.length+" rules)");
+  	if (verbose) log(lt.name + " - OK ("+lt.untils.length+" rules)");
   	return true;
   };
   

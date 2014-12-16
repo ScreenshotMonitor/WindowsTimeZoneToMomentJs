@@ -83,7 +83,8 @@ namespace WinTzToMomentJsTzTool
         
         private static void GenTest(int from, int to)
         {
-            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
+            var zones = TimeZoneInfo.GetSystemTimeZones().ToList();
+            zones = zones.Where(x => TimeZoneToMomentConverter.Problems.Contains(x.Id)).ToList();
             var list = zones.Select(wtz =>
                 {
                     var ianaId = ConvertWindowsToIana(wtz.Id);
@@ -101,7 +102,7 @@ namespace WinTzToMomentJsTzTool
 
         private static void ExportZones(int from, int to)
         {
-            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
+            var zones = TimeZoneInfo.GetSystemTimeZones().ToList();
             var list = zones.Select(wtz =>
                 {
                     var ianaId = ConvertWindowsToIana(wtz.Id);
@@ -112,7 +113,7 @@ namespace WinTzToMomentJsTzTool
             Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.None));
         }
 
-        public static void Main(string[] args)
+        public static void RunMain(string[] args)
         {
             if (args.Length < 2)
             {
@@ -132,6 +133,25 @@ namespace WinTzToMomentJsTzTool
                         break;
                 }
             }
+        }
+
+        private static void Test()
+        {
+            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.Id == "Samoa Standard Time");
+            var list = zones.Select(wtz =>
+            {
+                var ianaId = ConvertWindowsToIana(wtz.Id);
+                var mtz = TimeZoneToMomentConverter.ToMoment(wtz, 1990, 2030);
+                return new MomentTimeZoneExt(ianaId, mtz);
+            }).ToList();
+
+            Console.WriteLine(JsonConvert.SerializeObject(list, Formatting.None));
+        }
+
+        public static void Main(string[] args)
+        {
+            RunMain(args);
+            //Test();
         }
     }
 }

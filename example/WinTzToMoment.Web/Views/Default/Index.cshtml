@@ -1,6 +1,6 @@
 ﻿@using WinTzToMoment.Controllers
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="app">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -27,7 +27,7 @@
         </style>
     </head>
 
-    <body>
+    <body ng-controller="AppController">
 
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
             <div class="container">
@@ -62,34 +62,57 @@
                 <div class="col-lg-6">
                     <form role="form">
                         <div class="form-group">
-                            <label for="winTz">Windows Time Zone</label>
-                            <select  class="form-control" id="winTz">
+                            <label>Windows Time Zone</label>
+                            <select class="form-control" ng-model="selectedTz" ng-options="tz.name for tz in windowsTimezones track by tz.name">
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="dateTime">UTC Date Time <small class="text-muted">(@DefaultController.DateTimeFmt)</small> </label>
-                            <input type="text" class="form-control" id="dateTime" placeholder="@DefaultController.DateTimeFmt" value="@(new DateTimeOffset(DateTime.UtcNow).ToString("yyyy-MM-ddTHH:mm:ssK")) ">
+                            <label>UTC Date Time <small class="text-muted">(@DefaultController.DateTimeFmt)</small> </label>
+                            <input type="text" class="form-control" placeholder="@DefaultController.DateTimeFmt" ng-model="dateTime" >
                         </div>
                         
-                        <a href="#" id="convert" class="btn btn-default">Convert</a>
+                        <button class="btn btn-default" ng-click="save()">Save</button> 
+                        <button class="btn btn-default" ng-click="restore()">Restore</button> 
                         
-                        <div class="form-group" id="result" style="display: none;">
+                        <button class="btn btn-default" ng-click="convertSelected()">Convert</button> 
+                        <span>to <b>{{selectedTz.name}}</b></span>
+                        <span ng-if="serverOffset">( {{serverOffset}} )</span>
+                        
+                        <div ng-show="isSuccess || isFailure" class="form-group" style="margin-top: 15px;">
                             <p>
                                 <b>Converted by WindowsTimeZoneToMomentJs (client side)</b><br/> 
-                                <span id="by-client"></span> <br/><br/>
+                                <span>{{clientDateTime}}</span> <br/><br/>
                                 
-                                <b>Converted by TimeZoneInfo.ConvertTimeFromUtc (server side)</b> <br/><span id="by-server" data-url="@Url.Action("Convert")"></span> <br/>
-
+                                <b>Converted by TimeZoneInfo.ConvertTimeFromUtc (server side)</b><br/>
+                                <span>{{serverDateTime}}</span><br/>
                             </p>
-                            <h2 id="ok" class="res-marker" style="color: green;">
-                                OK
+                            <h2 ng-show="isSuccess" class="res-marker" style="color: green;">
+                                SUCCESS
                             </h2>
-                            <h2 id="fail" class="res-marker" style="color: red;">
-                                FAIL
+                            <h2 ng-show="isFailure" class="res-marker" style="color: red;">
+                                FAILURE
                             </h2>
                         </div>
                        
                     </form>
+                </div>
+                <div class="col-lg-6">
+                    <button class="btn btn-default" ng-click="convertAll()">Convert all</button>
+                    <span>to <b>{{selectedTz.name}}</b></span>
+                    <span ng-if="$all" style="color: blue;">
+                        &mdash; {{$all}}
+                    </span>
+                    <ol style="margin-top: 15px;">
+                        <li ng-repeat="tz in windowsTimezones" style="padding: 5px;">
+                            <button class="btn btn-default btn-xs" ng-click="selectTimeZone(tz)" style="min-width: 200px;">{{tz.name}}</button> 
+                            <span ng-if="tz.$c">
+                                <b>{{tz.$c.serverDateTime}}</b>
+                                &mdash;
+                                <span style="color: green;" ng-show="tz.$c.isSuccess">SUCCESS</span>
+                                <span style="color: red;" ng-hide="tz.$c.isSuccess">FAILURE</span>
+                            </span>
+                        </li>
+                    </ol>
                 </div>
             </div>
         </div><!-- /.container -->
@@ -105,8 +128,9 @@
         <script src="http://underscorejs.org/underscore-min.js"> </script>
         <script src="http://momentjs.com/downloads/moment.min.js"> </script>
         <script src="http://momentjs.com/downloads/moment-timezone-with-data.min.js"> </script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.5/moment-timezone-utils.min.js"></script>
-        <script src="@Url.Action("WindowsTimeZoneToMomentJs")"> </script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.2.5/moment-timezone-utils.min.js"> </script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.6/angular.min.js"> </script>
+        <script src="@Url.Action("WindowsTimeZoneToMomentJs")?v=@DateTime.UtcNow.Ticks"> </script>
         <script src="~/Scripts/main.js"> </script>
     </body>
 </html>

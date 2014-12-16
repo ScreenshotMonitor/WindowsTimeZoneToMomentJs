@@ -33,7 +33,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
             return ToMoment(tz).ToJson();
         }
 
-        private const int YearDelta = 10;
+        private const int YearDelta = 20;
 
         /// <summary>
         /// Converts <c>TimeZoneInfo</c> to the zone object for the default period in years (+/- 10 years to the current date).
@@ -88,8 +88,14 @@ namespace Pranas.WindowsTimeZoneToMomentJs
             var result = new MomentTimeZone
                 {
                     name = tz.Id,
-                    descr = fromYear + "-" + toYear + " (Utc offset : " + tz.BaseUtcOffset+")"
+                    descr = fromYear + "-" + toYear + " (Utc offset : " + tz.BaseUtcOffset + ")"
                 };
+            if (!tz.GetAdjustmentRules().Any())
+            {
+                AddWhereNoAdjustmentRules(result, fromYear, toYear, Convert.ToInt64(tz.BaseUtcOffset.TotalMinutes));
+                return result;
+            }
+
             var untils = GetUntils(tz, fromYear, toYear);
             if (!untils.Any())
             {
@@ -153,13 +159,30 @@ namespace Pranas.WindowsTimeZoneToMomentJs
                 list.Add(r.DateStart);
                 list.Add(r.DateEnd);
             }
+            list.Sort();
+
             var start = new DateTimeOffset(from, 1, 1, 0, 0, 0, 0, TsUtc).DateTime;
             var end = new DateTimeOffset(to, 1, 1, 0, 0, 0, 0, TsUtc).DateTime;
 
             if (list.Any())
             {
-                if (start.IsAfter(list[0]) && start.IsBefore(list[1])) list[0] = start;
-                if (end.IsBefore(list[list.Count - 1]) && end.IsAfter(list[list.Count - 2])) list[list.Count - 1] = end;
+                if (start.IsAfter(list[0]) && start.IsBefore(list[1]))
+                {
+                    list[0] = start;
+                }
+                else
+                {
+                    list.Insert(0, start);
+                }
+
+                if (end.IsBefore(list[list.Count - 1]) && end.IsAfter(list[list.Count - 2]))
+                {
+                    list[list.Count - 1] = end;
+                }
+                else
+                {
+                    list.Add(end);
+                }
             }
 
             list.Reverse();
@@ -198,37 +221,61 @@ namespace Pranas.WindowsTimeZoneToMomentJs
 
         private const string DeafultAbbr = "-";
 
-        private static void Add(this MomentTimeZone mTz, DateTime? dtOpt, Int64 offset)
+        private static void Add(this MomentTimeZone mTz, DateTime dt, Int64 offset)
         {
-            if (dtOpt.HasValue)
-            {
-                var dt = dtOpt.Value;
-                var u = dt.AddMinutes(offset).ToUnix();
-                if (mTz.untils.Any(x => x == u)) return;
-                mTz.abbrs.Add(DeafultAbbr);
-                mTz.untils.Add(u);
-                mTz.offsets.Add(offset);
-            }
-            else
-            {
-                mTz.abbrs.Add(DeafultAbbr);
-                mTz.untils.Add(0);
-                mTz.offsets.Add(offset);
-            }
+            var u = dt.ToUnix();
+            if (mTz.untils.Any(x => x == u)) return;
+            mTz.abbrs.Add(DeafultAbbr);
+            mTz.untils.Add(u);
+            mTz.offsets.Add(offset);
         }
 
-        private static void Swap(ref int x1, ref int x2)
-        {
-            var tmp = x1;
-            x1 = x2;
-            x2 = tmp;
-        }
+        /// <summary>
+        /// Problem zones
+        /// </summary>
+        public static readonly List<string> Problems = new List<string>()
+            {
+                "Paraguay Standard Time",
+                "Central Brazilian Standard Time",
+                "Pacific SA Standard Time",
+                "E. South America Standard Time",
+                "Argentina Standard Time",
+                "Montevideo Standard Time",
+                "Bahia Standard Time",
+                "Namibia Standard Time",
+                "Jordan Standard Time",
+                "Kaliningrad Standard Time",
+                "Libya Standard Time",
+                "Russian Standard Time",
+                "Belarus Standard Time",
+                "Iran Standard Time",
+                "Mauritius Standard Time",
+                "Ekaterinburg Standard Time",
+                "N. Central Asia Standard Time",
+                "North Asia Standard Time",
+                "North Asia East Standard Time",
+                "W. Australia Standard Time",
+                "Yakutsk Standard Time",
+                "Cen. Australia Standard Time",
+                "Vladivostok Standard Time",
+                "AUS Eastern Standard Time",
+                "Magadan Standard Time",
+                "Tasmania Standard Time",
+                "New Zealand Standard Time",
+                "Fiji Standard Time",
+                "Samoa Standard Time"
+            };
+
+        private static readonly DateTime StartDateTime = new DateTimeOffset(1,1,1,1,1,1, TsUtc).DateTime;
 
         private static DateTime? HandleDate(MomentTimeZone mTz, TimeZoneInfo tz, DateTime dt, DateTime maxDate)
         {
             var offset = Convert.ToInt32(tz.BaseUtcOffset.TotalMinutes);
+               
+            if (!mTz.untils.Any()) mTz.Add(StartDateTime, -offset);
+            mTz.Add(dt, -offset);
             var rule = tz.FindRule(dt);
-
+       
             if (rule != null)
             {
                 var daylightDelta = Convert.ToInt32(rule.DaylightDelta.TotalMinutes);
@@ -240,23 +287,15 @@ namespace Pranas.WindowsTimeZoneToMomentJs
                 var d1 = isReverted ? transEnd : transStart;
                 var d2 = isReverted ? transStart : transEnd;
 
-// ReSharper disable InconsistentNaming
-                var _o = offset;
-// ReSharper restore InconsistentNaming
+                //var offset1 = Convert.ToInt32(tz.GetUtcOffset(d2.AddDays(-1)).TotalMinutes);
+                //if (offset != offset1) offset += 60;
+
                 int o1, o2;
 
-                if (daylightDelta > 0)
-                {
-                    o1 = -(_o);
-                    o2 = -(_o + daylightDelta);
-                }
-                else
-                {
-                    o1 = -(_o - daylightDelta);
-                    o2 = -(_o);
-                }
+                var _o = offset;
 
-                if (isReverted) Swap(ref o1, ref o2);
+                o1 = -(_o);
+                o2 = -(_o + daylightDelta);
 
                 mTz.Add(d1, o1);
                 mTz.Add(d2, o2);
@@ -265,7 +304,14 @@ namespace Pranas.WindowsTimeZoneToMomentJs
                 var mx = maxDate < rule.DateEnd ? maxDate : rule.DateEnd;
                 if (nextStart.IsBefore(mx)) return nextStart;
             }
+           
             return null;
+        }
+
+        private static void AddWhereNoAdjustmentRules(MomentTimeZone mTz, int fromYear, int toYear, Int64 offset)
+        {
+            mTz.Add(new DateTimeOffset(fromYear, 1, 1, 0, 0, 0, 0, TsUtc).DateTime, -offset);
+            mTz.Add(new DateTimeOffset(toYear, 12, 31, 0, 0, 0, 0, TsUtc).DateTime, -offset);
         }
 
         #endregion

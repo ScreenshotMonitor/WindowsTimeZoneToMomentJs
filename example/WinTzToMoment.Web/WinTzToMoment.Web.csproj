@@ -40,10 +40,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="Pranas.WindowsTimeZoneToMomentJs, Version=1.0.4.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\Pranas.WindowsTimeZoneToMomentJs.1.0.4\lib\Pranas.WindowsTimeZoneToMomentJs.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.Entity" />
@@ -148,6 +144,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Pranas.WindowsTimeZoneToMomentJs\Pranas.WindowsTimeZoneToMomentJs.csproj">
+      <Project>{d40680a8-e75a-44dd-b3c1-e00899814acc}</Project>
+      <Name>Pranas.WindowsTimeZoneToMomentJs</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

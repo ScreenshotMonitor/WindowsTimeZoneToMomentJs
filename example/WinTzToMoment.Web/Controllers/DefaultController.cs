@@ -16,10 +16,14 @@ namespace WinTzToMoment.Controllers
             return View();
         }
 
+       
+
         // /default/index
         public ActionResult WindowsTimeZoneToMomentJs()
         {
-            var zones = TimeZoneInfo.GetSystemTimeZones().Where(x => x.GetAdjustmentRules().Any());
+            var zones = TimeZoneInfo.GetSystemTimeZones().ToList();
+            zones = zones.Where(x => TimeZoneToMomentConverter.Problems.Contains(x.Id)).ToList();
+            //zones = zones.Where(x => x.GetAdjustmentRules().Any()).ToList();
             var list = zones.Select(TimeZoneToMomentConverter.ToMoment).ToList();
             var arr = MomentTimeZoneJsonConverter.ToJsonArray(list, x => x.ToJson());
             var script = "window.windowsTimezones = " + arr;
@@ -33,7 +37,7 @@ namespace WinTzToMoment.Controllers
             var dto = DateTimeOffset.ParseExact(dt, DateTimeFmt, Thread.CurrentThread.CurrentCulture);
             var tz = TimeZoneInfo.FindSystemTimeZoneById(id);
             var d = TimeZoneInfo.ConvertTimeFromUtc(dto.DateTime, tz);
-            return Content(new DateTimeOffset(d, tz.GetUtcOffset(d)).ToString(DateTimeFmt), "text/plain");
+            return Content("{" + string.Format(" \"value\" : \"{0}\", \"offset\": \"{1}\"", new DateTimeOffset(d, tz.GetUtcOffset(d)).ToString(DateTimeFmt), tz.BaseUtcOffset) + "}", "application/json");
         }
     }
 }
