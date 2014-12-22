@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pranas.WindowsTimeZoneToMomentJs", "Pranas.WindowsTimeZoneToMomentJs\Pranas.WindowsTimeZoneToMomentJs.csproj", "{D40680A8-E75A-44DD-B3C1-E00899814ACC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pranas.WindowsTimeZoneToMomentJs.Test", "Pranas.WindowsTimeZoneToMomentJs.Test\Pranas.WindowsTimeZoneToMomentJs.Test.csproj", "{BED65EF8-B16C-4B5D-B0CE-43721B7B74EC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D40680A8-E75A-44DD-B3C1-E00899814ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D40680A8-E75A-44DD-B3C1-E00899814ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D40680A8-E75A-44DD-B3C1-E00899814ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D40680A8-E75A-44DD-B3C1-E00899814ACC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BED65EF8-B16C-4B5D-B0CE-43721B7B74EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BED65EF8-B16C-4B5D-B0CE-43721B7B74EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BED65EF8-B16C-4B5D-B0CE-43721B7B74EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BED65EF8-B16C-4B5D-B0CE-43721B7B74EC}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

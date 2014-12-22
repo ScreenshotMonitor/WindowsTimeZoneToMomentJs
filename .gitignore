@@ -1,3 +1,4 @@
 *.suo
-packages
 NuGet
+bin
+obj
