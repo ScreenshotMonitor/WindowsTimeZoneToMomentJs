@@ -16,7 +16,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
     {
         private static readonly DateTimeOffset UnixEpoch = new DateTimeOffset(1970, 1, 1, 0, 0, 0, 0, TimeSpan.Zero);
         private static readonly JavaScriptSerializer Serializer = new JavaScriptSerializer();
-        private static readonly ConcurrentDictionary<string, string> Cache = new ConcurrentDictionary<string, string>();
+        private static readonly ConcurrentDictionary<Tuple<string, int, int, string>, string> Cache = new ConcurrentDictionary<Tuple<string, int, int, string>, string>();
 
         /// <summary>
         /// Generates JavaScript that adds MomentJs timezone into moment.tz store.
@@ -24,11 +24,12 @@ namespace Pranas.WindowsTimeZoneToMomentJs
         /// </summary>
         /// <param name="tz">TimeZone</param>
         /// <param name="yearFrom">Minimum year</param>
-        /// <param name="yearTo">Maximum year</param>
+        /// <param name="yearTo">Maximum year (inclusive)</param>
+        /// <param name="overrideName">Name of the generated MomentJs Zone; TimeZoneInfo.Id by default</param>
         /// <returns>JavaScript</returns>
-        public static string GenerateAddMomentZoneScript(TimeZoneInfo tz, int yearFrom, int yearTo)
+        public static string GenerateAddMomentZoneScript(TimeZoneInfo tz, int yearFrom, int yearTo, string overrideName = null)
         {
-            string key = tz.Id;
+            var key = new Tuple<string, int, int, string>(tz.Id, yearFrom, yearTo, overrideName);
 
             return Cache.GetOrAdd(key, x =>
             {
@@ -43,7 +44,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
     z.offsets = {3};
     moment.tz._zones[z.name.toLowerCase().replace(/\//g, '_')] = z;
 }})();",
-                    Serializer.Serialize(tz.Id),
+                    Serializer.Serialize(overrideName ?? tz.Id),
                     Serializer.Serialize(untils.Select(u => "-")),
                     Serializer.Serialize(untils.Select(u => u.Item1)),
                     Serializer.Serialize(untils.Select(u => u.Item2)));

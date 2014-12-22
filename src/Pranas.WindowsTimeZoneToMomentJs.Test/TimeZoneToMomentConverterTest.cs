@@ -28,7 +28,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs.Test
 
         private void TestTimeZone(TimeZoneInfo tz)
         {
-            int yearFrom = 2010;
+            const int yearFrom = 2010;
             int yearTo = DateTime.Now.Year + 10;
 
             var script = TimeZoneToMomentConverter.GenerateAddMomentZoneScript(tz, yearFrom, yearTo);
