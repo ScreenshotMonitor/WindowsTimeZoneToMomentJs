@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Pranas.WindowsTimeZoneToMomentJs</name>
+    </assembly>
+    <members>
+        <member name="T:Pranas.WindowsTimeZoneToMomentJs.TimeZoneToMomentConverter">
+            <summary>
+            Tool to generates JavaScript that adds MomentJs timezone into moment.tz store.
+            As per http://momentjs.com/timezone/docs/
+            </summary>
+        </member>
+        <member name="M:Pranas.WindowsTimeZoneToMomentJs.TimeZoneToMomentConverter.GenerateAddMomentZoneScript(System.TimeZoneInfo,System.Int32,System.Int32,System.String)">
+            <summary>
+            Generates JavaScript that adds MomentJs timezone into moment.tz store.
+            It caches the result by TimeZoneInfo.Id
+            </summary>
+            <param name="tz">TimeZone</param>
+            <param name="yearFrom">Minimum year</param>
+            <param name="yearTo">Maximum year (inclusive)</param>
+            <param name="overrideName">Name of the generated MomentJs Zone; TimeZoneInfo.Id by default</param>
+            <returns>JavaScript</returns>
+        </member>
+    </members>
+</doc>
