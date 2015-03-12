@@ -8,6 +8,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Script.Serialization;
+using NodaTime;
 
 namespace Pranas.WindowsTimeZoneToMomentJs
 {
@@ -39,7 +40,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs
 
             return Cache.GetOrAdd(key, x =>
             {
-                var untils = EnumerateUntils(tz, yearFrom, yearTo).ToArray();
+                var untils = GetZoneUntilsOffsets(tz, yearFrom, yearTo);
 
                 return string.Format(
                     @"(function(){{
@@ -51,39 +52,26 @@ namespace Pranas.WindowsTimeZoneToMomentJs
     moment.tz._zones[z.name.toLowerCase().replace(/\//g, '_')] = z;
 }})();",
                     Serializer.Serialize(overrideName ?? tz.Id),
-                    Serializer.Serialize(untils.Select(u => "-")),
                     Serializer.Serialize(untils.Select(u => u.Item1)),
-                    Serializer.Serialize(untils.Select(u => u.Item2)));
+                    Serializer.Serialize(untils.Select(u => u.Item2)),
+                    Serializer.Serialize(untils.Select(u => u.Item3)));
             });
         }
 
-        private static IEnumerable<Tuple<long, int>> EnumerateUntils(TimeZoneInfo timeZone, int yearFrom, int yearTo)
+        private static Tuple<string, long, long>[] GetZoneUntilsOffsets(TimeZoneInfo timeZone, int yearFrom, int yearTo)
         {
-            // return until-offset pairs
-            var maxStep = (int) TimeSpan.FromDays(7).TotalMinutes;
-            Func<DateTimeOffset, int> offset = t => (int) TimeZoneInfo.ConvertTime(t, timeZone).Offset.TotalMinutes;
+            var intervals = DateTimeZoneProviders.Bcl[timeZone.Id].
+                GetZoneIntervals(Instant.FromUtc(yearFrom, 1, 1, 0, 0), Instant.FromUtc(yearTo + 1, 1, 1, 0, 0));
 
-            var t1 = new DateTimeOffset(yearFrom, 1, 1, 0, 0, 0, TimeSpan.Zero);
-
-            while (t1.Year <= yearTo)
-            {
-                var step = maxStep;
-
-                var t2 = t1.AddMinutes(step);
-                while (offset(t1) != offset(t2) && step > 1)
-                {
-                    step = step/2;
-                    t2 = t1.AddMinutes(step);
-                }
-
-                if (step == 1 && offset(t1) != offset(t2))
-                {
-                    yield return new Tuple<long, int>((long) (t2 - UnixEpoch).TotalMilliseconds, -offset(t1));
-                }
-                t1 = t2;
-            }
-
-            yield return new Tuple<long, int>((long) (t1 - UnixEpoch).TotalMilliseconds, -offset(t1));
+            return intervals.Select(i => 
+                new Tuple<string, long, long>(
+                    // abbrs
+                    i.Name,
+                    // untils
+                    i.End.Ticks / NodaConstants.TicksPerMillisecond,
+                    // offsets
+                    -i.WallOffset.Ticks / NodaConstants.TicksPerMinute
+                )).ToArray();
         }
     }
 }
