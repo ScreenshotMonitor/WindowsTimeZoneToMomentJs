@@ -5,6 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+using NodaTime;
+using NodaTime.TimeZones;
+
 using Noesis.Javascript;
 using NUnit.Framework;
 
@@ -58,7 +62,7 @@ namespace Pranas.WindowsTimeZoneToMomentJs.Test
                 foreach (var time in data)
                 {
                     // time should convert equally from UTC in both JavaScript and .NET
-                    var localTime = TimeZoneInfo.ConvertTime(time, tz);
+                    var localTime = Instant.FromDateTimeOffset(time).InZone(BclDateTimeZone.FromTimeZoneInfo(tz)).ToDateTimeOffset();
                     // so it will look like 2010-03-14T03:00:00-08:00
                     windowsValue = localTime.ToString("O").Replace(".0000000", string.Empty);
 
